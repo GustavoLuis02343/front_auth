@@ -1,0 +1,39 @@
+<div class="verify-container">
+  <div class="verify-card">
+    <div class="icon-lock">🔐</div>
+    <h2>Verificación en dos pasos</h2>
+    <p class="subtitle">Ingresa el código de tu aplicación autenticadora</p>
+
+    <div class="method-info">
+      <span class="badge">{{ metodo2fa }}</span>
+      <p>{{ correo }}</p>
+    </div>
+
+    <div class="code-section">
+      <input 
+        type="text" 
+        class="code-input"
+        [(ngModel)]="codigo"
+        placeholder="000000"
+        maxlength="6"
+        pattern="[0-9]*"
+        [disabled]="isLoading"
+        autofocus
+      />
+
+      <button 
+        (click)="verificar()" 
+        class="btn btn-primary"
+        [disabled]="isLoading"
+      >
+        {{ isLoading ? 'Verificando...' : 'Verificar código' }}
+      </button>
+
+      <p *ngIf="mensaje" [ngClass]="{'error': isError, 'success': !isError}">
+        {{ mensaje }}
+      </p>
+    </div>
+
+    <a routerLink="/login" class="back-link">← Volver al inicio de sesión</a>
+  </div>
+</div>

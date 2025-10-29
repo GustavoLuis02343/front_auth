@@ -1,0 +1,126 @@
+.verify-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.verify-card {
+  background: white;
+  padding: 50px 40px;
+  border-radius: 15px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+.icon-lock {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.method-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.badge {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.method-info p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.code-section {
+  margin: 30px 0;
+}
+
+.code-input {
+  width: 220px;
+  padding: 20px;
+  font-size: 36px;
+  text-align: center;
+  letter-spacing: 15px;
+  border: 3px solid #667eea;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  font-weight: bold;
+}
+
+.code-input:focus {
+  outline: none;
+  border-color: #5568d3;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.back-link:hover {
+  color: #5568d3;
+}
+
+.error {
+  color: #e74c3c;
+  background: #fadbd8;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.success {
+  color: #27ae60;
+  background: #d5f4e6;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
