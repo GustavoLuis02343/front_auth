@@ -102,3 +102,38 @@
   margin-bottom: 15px;
   font-size: 14px;
 }
+.forgot-link-container {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.forgot-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+.forgot-link-container {
+  text-align: center;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.forgot-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+  cursor: pointer; /* ✅ Asegura que se vea como clickeable */
+  display: inline-block; /* ✅ Hace que el área clickeable sea más grande */
+}
+
+.forgot-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}

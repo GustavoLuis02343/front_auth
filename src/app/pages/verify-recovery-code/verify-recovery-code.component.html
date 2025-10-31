@@ -1,0 +1,59 @@
+<div class="verify-code-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>📧 Verificar Código</h2>
+      <p>Ingresa el código que enviamos a:</p>
+      <strong>{{ correo }}</strong>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer" [class.expired]="timeLeft <= 0">
+      <span class="timer-icon">⏱️</span>
+      <span class="timer-text">{{ formatTime() }}</span>
+    </div>
+
+    <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()">
+      <!-- Code Input -->
+      <div class="form-group">
+        <label for="codigo">Código de recuperación</label>
+        <input
+          type="text"
+          id="codigo"
+          formControlName="codigo"
+          placeholder="XXXX-XXXX"
+          maxlength="9"
+          (input)="onCodeInput($event)"
+          [class.error]="codigo?.invalid && codigo?.touched"
+          class="code-input"
+        />
+        <div class="error-message" *ngIf="codigo?.invalid && codigo?.touched">
+          <span *ngIf="codigo?.hasError('required')">El código es obligatorio</span>
+          <span *ngIf="codigo?.hasError('pattern')">Formato: XXXX-XXXX</span>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        ❌ {{ errorMessage }}
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="verifyForm.invalid || isLoading || timeLeft <= 0"
+      >
+        <span *ngIf="!isLoading">Verificar Código</span>
+        <span *ngIf="isLoading">Verificando...</span>
+      </button>
+
+      <!-- Resend Code -->
+      <div class="resend-section">
+        <p>¿No recibiste el código?</p>
+        <button type="button" class="btn-secondary" (click)="resendCode()">
+          Reenviar código
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
