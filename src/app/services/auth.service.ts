@@ -3,34 +3,28 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment'; // ✅ IMPORTA EL ENVIRONMENT
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:4000/api/auth';
-  private emailApiUrl = 'http://localhost:4000/api/email'; 
+  // ✅ Usa la URL del entorno (local o producción)
+  private apiUrl = `${environment.apiUrl}/auth`;
+  private emailApiUrl = `${environment.apiUrl}/email`;
 
   constructor(
     private http: HttpClient,
     private router: Router
-  ) { }
+  ) {}
 
   register(nombre: string, correo: string, contrasena: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, {
-      nombre,
-      correo,
-      contrasena
-    });
+    return this.http.post(`${this.apiUrl}/register`, { nombre, correo, contrasena });
   }
 
   login(correo: string, contrasena: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, {
-      correo,
-      contrasena
-    }).pipe(
+    return this.http.post(`${this.apiUrl}/login`, { correo, contrasena }).pipe(
       tap((response: any) => {
-        // Guardar datos del usuario si el login es exitoso
         if (response.token) {
           this.saveToken(response.token);
           this.saveUserData(response.usuario);
@@ -40,10 +34,7 @@ export class AuthService {
   }
 
   loginWith2FA(correo: string, codigo2fa: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login-2fa`, {
-      correo,
-      codigo: codigo2fa
-    }).pipe(
+    return this.http.post(`${this.apiUrl}/login-2fa`, { correo, codigo: codigo2fa }).pipe(
       tap((response: any) => {
         if (response.token) {
           this.saveToken(response.token);
@@ -55,13 +46,12 @@ export class AuthService {
 
   sendEmailCode(correo: string): Observable<any> {
     console.log('📧 Enviando código a:', correo);
-    console.log('🔗 URL:', `${this.emailApiUrl}/send-email-code`); 
-    
+    console.log('🔗 URL completa →', `${this.emailApiUrl}/send-email-code`);
+
     return this.http.post(`${this.emailApiUrl}/send-email-code`, { correo }).pipe(
-      //                                         
-      tap(response => console.log('✅ Respuesta:', response)),
+      tap(response => console.log('✅ Respuesta del backend:', response)),
       tap({
-        error: (error) => console.error('❌ Error:', error)
+        error: (error) => console.error('❌ Error al enviar correo:', error)
       })
     );
   }
@@ -90,7 +80,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('temp_correo_2fa'); // ✅ LIMPIAR TAMBIÉN ESTO
+    localStorage.removeItem('temp_correo_2fa');
     this.router.navigate(['/login']);
   }
 }
