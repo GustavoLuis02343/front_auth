@@ -1,5 +1,10 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/dist/front_auth/index.html" }
+  "version": 2,
+  "builds": [
+    { "src": "angular.json", "use": "@vercel/static-build", "config": { "distDir": "dist/front_auth" } }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "index.html" }
   ]
 }
