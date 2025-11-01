@@ -1,7 +1,7 @@
 {
   "version": 2,
   "builds": [
-    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist/front_auth" } }
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist/front_auth/browser" } }
   ],
   "routes": [
     { "handle": "filesystem" },
