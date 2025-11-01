@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://backend-auth-puce.vercel.app/api'
+  apiUrl: 'http://localhost:4000/api'
 };
