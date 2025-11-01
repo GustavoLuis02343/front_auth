@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private apiUrl = 'http://localhost:4000/api/auth';
+  private emailApiUrl = 'http://localhost:4000/api/email'; 
 
   constructor(
     private http: HttpClient,
@@ -41,13 +42,26 @@ export class AuthService {
   loginWith2FA(correo: string, codigo2fa: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login-2fa`, {
       correo,
-      codigo2fa
+      codigo: codigo2fa
     }).pipe(
       tap((response: any) => {
         if (response.token) {
           this.saveToken(response.token);
           this.saveUserData(response.usuario);
         }
+      })
+    );
+  }
+
+  sendEmailCode(correo: string): Observable<any> {
+    console.log('📧 Enviando código a:', correo);
+    console.log('🔗 URL:', `${this.emailApiUrl}/send-email-code`); 
+    
+    return this.http.post(`${this.emailApiUrl}/send-email-code`, { correo }).pipe(
+      //                                         
+      tap(response => console.log('✅ Respuesta:', response)),
+      tap({
+        error: (error) => console.error('❌ Error:', error)
       })
     );
   }
@@ -60,12 +74,10 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  // ⭐ NUEVO: Guardar datos del usuario
   saveUserData(usuario: any): void {
     localStorage.setItem('user', JSON.stringify(usuario));
   }
 
-  // ⭐ NUEVO: Obtener datos del usuario
   getUserData(): any {
     const userData = localStorage.getItem('user');
     return userData ? JSON.parse(userData) : null;
@@ -78,6 +90,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('temp_correo_2fa'); // ✅ LIMPIAR TAMBIÉN ESTO
     this.router.navigate(['/login']);
   }
 }

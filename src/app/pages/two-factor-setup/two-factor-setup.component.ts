@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TwoFactorService } from '../../services/two-factor.service';
 import { AuthService } from '../../services/auth.service';
+import { HttpClient } from '@angular/common/http'; // NUEVO
 
 @Component({
   selector: 'app-two-factor-setup',
@@ -22,10 +23,13 @@ export class TwoFactorSetupComponent implements OnInit {
   isError: boolean = false;
   paso: number = 1;
 
+  private apiUrl = 'http://localhost:3000/api'; // NUEVO
+
   constructor(
     private twoFactorService: TwoFactorService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient 
   ) { }
 
   ngOnInit(): void {
@@ -33,13 +37,11 @@ export class TwoFactorSetupComponent implements OnInit {
     const navigation = this.router.getCurrentNavigation();
     this.correo = navigation?.extras?.state?.['correo'] || '';
     
-    // Si no hay correo en state, obtenerlo del usuario actual
     if (!this.correo) {
       const userData = this.authService.getUserData();
       this.correo = userData?.correo || '';
     }
     
-    // Si aún no hay correo, redirigir al dashboard
     if (!this.correo) {
       alert('No se pudo obtener el correo. Inicia sesión nuevamente.');
       this.router.navigate(['/dashboard']);
@@ -51,7 +53,9 @@ export class TwoFactorSetupComponent implements OnInit {
 
     if (metodo === 'TOTP') {
       this.configurarTOTP();
-    } else if (metodo === 'EMAIL' || metodo === 'SMS') {
+    } else if (metodo === 'EMAIL') {
+      this.configurarEmail(); // NUEVO
+    } else if (metodo === 'SMS') {
       this.showMessage('Este método estará disponible próximamente', false);
     } else if (metodo === 'NINGUNO') {
       this.router.navigate(['/dashboard']);
@@ -72,6 +76,39 @@ export class TwoFactorSetupComponent implements OnInit {
     });
   }
 
+  configurarEmail(): void {
+    this.http.post(`${this.apiUrl}/email/setup-email`, {
+      correo: this.correo
+    }).subscribe({
+      next: (response: any) => {
+        this.showMessage('✅ ' + response.message, false);
+        this.paso = 3;
+      },
+      error: (error) => {
+        console.error('Error al configurar EMAIL:', error);
+        this.showMessage('❌ Error al enviar código', true);
+      }
+    });
+  }
+
+  verificarEmail(): void {
+    this.http.post(`${this.apiUrl}/email/verify-email`, {
+      correo: this.correo,
+      codigo: this.codigoVerificacion
+    }).subscribe({
+      next: (response: any) => {
+        this.showMessage('✅ ' + response.message, false);
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Error al verificar EMAIL:', error);
+        this.showMessage('❌ Código incorrecto', true);
+      }
+    });
+  }
+
   irAVerificacion(): void {
     this.paso = 3;
   }
@@ -82,6 +119,15 @@ export class TwoFactorSetupComponent implements OnInit {
       return;
     }
 
+    // MODIFICADO: Verificar según método
+    if (this.metodoSeleccionado === 'TOTP') {
+      this.verificarTOTP();
+    } else if (this.metodoSeleccionado === 'EMAIL') {
+      this.verificarEmail(); 
+    }
+  }
+
+  verificarTOTP(): void {
     this.twoFactorService.verifyTOTP(this.correo, this.codigoVerificacion).subscribe({
       next: (response) => {
         this.showMessage('✅ 2FA activado correctamente', false);
