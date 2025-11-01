@@ -12,11 +12,12 @@
         <span class="badge recommended">Recomendado</span>
       </div>
 
-      <div class="method-card disabled" (click)="seleccionarMetodo('EMAIL')">
+      <!-- CAMBIO 1: Quité "disabled" y cambié badge -->
+      <div class="method-card" (click)="seleccionarMetodo('EMAIL')">
         <div class="icon">📧</div>
         <h3>Correo Electrónico</h3>
         <p>Código enviado a tu email</p>
-        <span class="badge soon">Próximamente</span>
+        <span class="badge available">Disponible</span>
       </div>
 
       <div class="method-card disabled" (click)="seleccionarMetodo('SMS')">
@@ -34,8 +35,7 @@
     </div>
   </div>
 
-  <!-- Paso 2: Mostrar QR Code -->
-  <div *ngIf="paso === 2" class="setup-card">
+  <div *ngIf="paso === 2 && metodoSeleccionado === 'TOTP'" class="setup-card">
     <h2>Escanea el código QR</h2>
     <p class="subtitle">Usa Google Authenticator o cualquier app compatible</p>
 
@@ -57,7 +57,13 @@
   <!-- Paso 3: Verificar código -->
   <div *ngIf="paso === 3" class="setup-card">
     <h2>Verifica tu código</h2>
-    <p class="subtitle">Ingresa el código de 6 dígitos de tu app</p>
+    <!-- CAMBIO 3: Subtítulo dinámico según método -->
+    <p class="subtitle" *ngIf="metodoSeleccionado === 'TOTP'">
+      Ingresa el código de 6 dígitos de tu app
+    </p>
+    <p class="subtitle" *ngIf="metodoSeleccionado === 'EMAIL'">
+      Revisa tu correo <strong>{{ correo }}</strong> e ingresa el código
+    </p>
 
     <div class="verification-section">
       <input 
