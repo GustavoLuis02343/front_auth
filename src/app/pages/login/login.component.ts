@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NavigationExtras, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
-import { RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router'; // ✅ AGREGAR ESTO
+
 
 @Component({
   selector: 'app-login',
@@ -36,56 +37,22 @@ export class LoginComponent {
 
     this.authService.login(this.correo, this.contrasena).subscribe({
       next: (response) => {
+        this.isLoading = false;
         console.log('Respuesta del login:', response);
 
         if (response.requires2FA) {
-          console.log('2FA requerido. Método:', response.metodo_2fa);
+          this.showMessage('Credenciales correctas. Verificando 2FA...', false);
           localStorage.setItem('temp_correo_2fa', response.correo);
           
-          // ============= NUEVO: SI ES EMAIL, ENVIAR CÓDIGO =============
-          if (response.metodo_2fa === 'EMAIL') {
-            this.showMessage('Credenciales correctas. Enviando código...', false);
-            
-            this.authService.sendEmailCode(response.correo).subscribe({
-              next: (emailResponse) => {
-                this.isLoading = false;
-                console.log('Código enviado:', emailResponse);
-                this.showMessage('✅ Código enviado a tu correo', false);
-                
-                  const navigationExtras: NavigationExtras = {state: {
-                      correo: response.correo,
-                      metodo_2fa: response.metodo_2fa
-                    }};
-                setTimeout(() => {
-
-                  
-                  this.router.navigate(['two-factor-verify'], navigationExtras);
-                }, 1500);
-              },
-              error: (error) => {
-                this.isLoading = false;
-                console.error('Error al enviar código:', error);
-                this.showMessage('❌ Error al enviar código', true);
+          setTimeout(() => {
+            this.router.navigate(['/two-factor-verify'], {
+              state: {
+                correo: response.correo,
+                metodo_2fa: response.metodo_2fa
               }
             });
-          } else {
-            // ============= TOTP: NO ENVIAR CÓDIGO =============
-            this.isLoading = false;
-            this.showMessage('Credenciales correctas. Verificando 2FA...', false);
-            
-            setTimeout(() => {
-              this.router.navigate(['/two-factor-verify'], {
-                state: {
-                  correo: response.correo,
-                  metodo_2fa: response.metodo_2fa
-                }
-              });
-            }, 1500);
-          }
+          }, 1500);
         } else {
-          // ============= SIN 2FA: LOGIN DIRECTO =============
-          this.isLoading = false;
-          
           // Guardar token y datos del usuario
           localStorage.setItem('token', response.token);
           localStorage.setItem('userEmail', response.usuario.correo);
