@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TwoFactorService } from '../../services/two-factor.service';
 import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http'; // NUEVO
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment'; // ✅ IMPORTAR
 
 @Component({
   selector: 'app-two-factor-setup',
@@ -23,7 +24,8 @@ export class TwoFactorSetupComponent implements OnInit {
   isError: boolean = false;
   paso: number = 1;
 
-  private apiUrl = 'http://localhost:3000/api'; // NUEVO
+  // ✅ USAR ENVIRONMENT EN VEZ DE HARDCODEAR
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private twoFactorService: TwoFactorService,
@@ -33,7 +35,6 @@ export class TwoFactorSetupComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Intentar obtener correo del state
     const navigation = this.router.getCurrentNavigation();
     this.correo = navigation?.extras?.state?.['correo'] || '';
     
@@ -54,7 +55,7 @@ export class TwoFactorSetupComponent implements OnInit {
     if (metodo === 'TOTP') {
       this.configurarTOTP();
     } else if (metodo === 'EMAIL') {
-      this.configurarEmail(); // NUEVO
+      this.configurarEmail();
     } else if (metodo === 'SMS') {
       this.showMessage('Este método estará disponible próximamente', false);
     } else if (metodo === 'NINGUNO') {
@@ -77,7 +78,8 @@ export class TwoFactorSetupComponent implements OnInit {
   }
 
   configurarEmail(): void {
-    this.http.post(`${this.apiUrl}/email/setup-email`, {
+    // ✅ CAMBIAR RUTA: Ahora usa /api/2fa/setup-email
+    this.http.post(`${this.apiUrl}/2fa/setup-email`, {
       correo: this.correo
     }).subscribe({
       next: (response: any) => {
@@ -92,7 +94,8 @@ export class TwoFactorSetupComponent implements OnInit {
   }
 
   verificarEmail(): void {
-    this.http.post(`${this.apiUrl}/email/verify-email`, {
+    // ✅ CAMBIAR RUTA: Ahora usa /api/2fa/verify-email
+    this.http.post(`${this.apiUrl}/2fa/verify-email`, {
       correo: this.correo,
       codigo: this.codigoVerificacion
     }).subscribe({
@@ -119,7 +122,6 @@ export class TwoFactorSetupComponent implements OnInit {
       return;
     }
 
-    // MODIFICADO: Verificar según método
     if (this.metodoSeleccionado === 'TOTP') {
       this.verificarTOTP();
     } else if (this.metodoSeleccionado === 'EMAIL') {

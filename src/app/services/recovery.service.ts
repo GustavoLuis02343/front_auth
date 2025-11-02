@@ -21,7 +21,7 @@ interface ResetResponse {
   providedIn: 'root'
 })
 export class RecoveryService {
-  private apiUrl = environment.apiUrl || 'http://localhost:4000/api';
+  private apiUrl = environment.apiUrl; // Ya no necesita fallback
 
   constructor(private http: HttpClient) {}
 
