@@ -3,15 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment'; // ✅ SIN .prod
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // ✅ Usa la URL del entorno (cambia automáticamente según build)
   private apiUrl = `${environment.apiUrl}/auth`;
-  private twoFactorApiUrl = `${environment.apiUrl}/2fa`; // ✅ Agregado para TOTP
+  private twoFactorApiUrl = `${environment.apiUrl}/2fa`;
 
   constructor(
     private http: HttpClient,
@@ -46,7 +45,13 @@ export class AuthService {
     );
   }
 
-  // ✅ Métodos de TOTP
+  // ✅ NUEVO: Enviar código de 2FA por email durante el login
+  sendEmailCode(correo: string): Observable<any> {
+    console.log('📧 Enviando código EMAIL a:', correo);
+    return this.http.post(`${this.twoFactorApiUrl}/send-login-code`, { correo });
+  }
+
+  // Métodos de TOTP
   setupTOTP(correo: string): Observable<any> {
     console.log('🔐 Configurando TOTP para:', correo);
     console.log('🔗 URL:', `${this.twoFactorApiUrl}/setup-totp`);
