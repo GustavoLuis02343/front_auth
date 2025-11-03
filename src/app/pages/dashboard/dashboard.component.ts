@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 export class DashboardComponent implements OnInit {
   usuario: any = null;
   tiene2FA: boolean = false;
+  vistaActual: 'inicio' | 'seguridad' = 'inicio';
 
   constructor(
     public authService: AuthService,
@@ -20,28 +21,33 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Verificar si está autenticado
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
       return;
     }
 
-    // Obtener datos del usuario
     this.usuario = this.authService.getUserData();
     console.log('Usuario:', this.usuario);
+  }
+
+  cambiarVista(vista: 'inicio' | 'seguridad'): void {
+    this.vistaActual = vista;
   }
 
   logout(): void {
     this.authService.logout();
   }
 
+  // ✅ MODIFICADO: Ir directo al QR de TOTP
   configurar2FA(): void {
-    if (this.usuario && this.usuario.correo) {
+    if (this.usuario?.correo) {
       this.router.navigate(['/two-factor-setup'], {
-        state: { correo: this.usuario.correo }
+        state: { 
+          correo: this.usuario.correo,
+          metodoPreseleccionado: 'TOTP',
+          saltarSeleccion: true
+        }
       });
-    } else {
-      alert('No se pudo obtener el correo del usuario');
     }
   }
 }

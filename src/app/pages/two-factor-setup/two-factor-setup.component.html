@@ -1,91 +1,113 @@
 <div class="setup-container">
-  <!-- Paso 1: Selección de método -->
+  <!-- Paso 1: Escanear QR (DIRECTO) -->
   <div *ngIf="paso === 1" class="setup-card">
-    <h2>Configura tu autenticación de dos factores</h2>
-    <p class="subtitle">Elige cómo deseas proteger tu cuenta</p>
-
-    <div class="methods-grid">
-      <div class="method-card" (click)="seleccionarMetodo('TOTP')">
-        <div class="icon">📱</div>
-        <h3>Aplicación Autenticadora</h3>
-        <p>Google Authenticator, Authy, etc.</p>
-        <span class="badge recommended">Recomendado</span>
-      </div>
-
-      <!-- CAMBIO 1: Quité "disabled" y cambié badge -->
-      <div class="method-card" (click)="seleccionarMetodo('EMAIL')">
-        <div class="icon">📧</div>
-        <h3>Correo Electrónico</h3>
-        <p>Código enviado a tu email</p>
-        <span class="badge available">Disponible</span>
-      </div>
-
-      <div class="method-card disabled" (click)="seleccionarMetodo('SMS')">
-        <div class="icon">💬</div>
-        <h3>SMS</h3>
-        <p>Código por mensaje de texto</p>
-        <span class="badge soon">Próximamente</span>
-      </div>
-
-      <div class="method-card skip" (click)="seleccionarMetodo('NINGUNO')">
-        <div class="icon">⏭️</div>
-        <h3>Omitir por ahora</h3>
-        <p>Puedes configurarlo después</p>
-      </div>
+    <div class="header-section">
+      <h2>🔐 Configura tu autenticación</h2>
+      <p class="subtitle">Escanea el código QR con tu aplicación autenticadora</p>
     </div>
-  </div>
 
-  <div *ngIf="paso === 2 && metodoSeleccionado === 'TOTP'" class="setup-card">
-    <h2>Escanea el código QR</h2>
-    <p class="subtitle">Usa Google Authenticator o cualquier app compatible</p>
-
-    <div class="qr-section">
-      <img [src]="qrCodeUrl" alt="QR Code" class="qr-code" />
+    <div class="qr-section" *ngIf="!cargando">
+      <div class="qr-container">
+        <img [src]="qrCodeUrl" alt="QR Code" class="qr-code" *ngIf="qrCodeUrl" />
+        <div class="qr-placeholder" *ngIf="!qrCodeUrl">
+          <span class="loader">⏳</span>
+        </div>
+      </div>
       
+      <div class="apps-info">
+        <p class="apps-title">📱 Aplicaciones compatibles:</p>
+        <ul class="apps-list">
+          <li>Google Authenticator</li>
+          <li>Microsoft Authenticator</li>
+          <li>Authy</li>
+          <li>1Password</li>
+        </ul>
+      </div>
+
       <div class="manual-code">
-        <p><strong>¿No puedes escanear?</strong></p>
-        <p>Ingresa este código manualmente:</p>
-        <code class="secret-code">{{ secreto }}</code>
+        <p class="manual-title"><strong>¿No puedes escanear?</strong></p>
+        <p class="manual-subtitle">Ingresa este código manualmente en tu app:</p>
+        <div class="secret-code-container">
+          <code class="secret-code">{{ secreto }}</code>
+          <button (click)="copiarSecreto()" class="btn-copy" title="Copiar código">
+            📋
+          </button>
+        </div>
       </div>
     </div>
 
-    <button (click)="irAVerificacion()" class="btn btn-primary">
-      Ya escaneé el código
-    </button>
+    <div class="loading-state" *ngIf="cargando">
+      <div class="spinner"></div>
+      <p>Generando código QR...</p>
+    </div>
+
+    <div class="actions">
+      <button 
+        (click)="irAVerificacion()" 
+        class="btn btn-primary"
+        [disabled]="cargando || !qrCodeUrl"
+      >
+        Ya escaneé el código →
+      </button>
+      
+      <button (click)="volver()" class="btn btn-secondary">
+        ← Volver al dashboard
+      </button>
+    </div>
+
+    <p *ngIf="mensaje && paso === 1" [ngClass]="{'error': isError, 'success': !isError}" class="message">
+      {{ mensaje }}
+    </p>
   </div>
 
-  <!-- Paso 3: Verificar código -->
-  <div *ngIf="paso === 3" class="setup-card">
-    <h2>Verifica tu código</h2>
-    <!-- CAMBIO 3: Subtítulo dinámico según método -->
-    <p class="subtitle" *ngIf="metodoSeleccionado === 'TOTP'">
-      Ingresa el código de 6 dígitos de tu app
-    </p>
-    <p class="subtitle" *ngIf="metodoSeleccionado === 'EMAIL'">
-      Revisa tu correo <strong>{{ correo }}</strong> e ingresa el código
-    </p>
+  <!-- Paso 2: Verificar código -->
+  <div *ngIf="paso === 2" class="setup-card">
+    <div class="header-section">
+      <h2>🔢 Verifica tu código</h2>
+      <p class="subtitle">
+        Ingresa el código de 6 dígitos que aparece en tu aplicación
+      </p>
+    </div>
 
     <div class="verification-section">
-      <input 
-        type="text" 
-        class="code-input"
-        [(ngModel)]="codigoVerificacion"
-        placeholder="000000"
-        maxlength="6"
-        pattern="[0-9]*"
-      />
+      <div class="code-input-container">
+        <input 
+          type="text" 
+          class="code-input"
+          [(ngModel)]="codigoVerificacion"
+          placeholder="000000"
+          maxlength="6"
+          pattern="[0-9]*"
+          (input)="validarSoloNumeros($event)"
+          autofocus
+        />
+        <span class="input-hint">{{ codigoVerificacion.length }}/6</span>
+      </div>
 
-      <button (click)="verificarCodigo()" class="btn btn-primary">
-        Verificar y Activar
-      </button>
+      <div class="verification-info">
+        <p class="info-text">
+          💡 <strong>Tip:</strong> El código cambia cada 30 segundos
+        </p>
+      </div>
 
-      <p *ngIf="mensaje" [ngClass]="{'error': isError, 'success': !isError}">
+      <div class="actions">
+        <button 
+          (click)="verificarCodigo()" 
+          class="btn btn-primary"
+          [disabled]="codigoVerificacion.length !== 6 || cargando"
+        >
+          <span *ngIf="!cargando">Verificar y Activar ✓</span>
+          <span *ngIf="cargando">Verificando...</span>
+        </button>
+
+        <button (click)="volverAlQR()" class="btn btn-secondary">
+          ← Ver QR nuevamente
+        </button>
+      </div>
+
+      <p *ngIf="mensaje" [ngClass]="{'error': isError, 'success': !isError}" class="message">
         {{ mensaje }}
       </p>
     </div>
   </div>
-
-  <button *ngIf="paso === 1" (click)="omitir2FA()" class="btn-skip">
-    Omitir configuración
-  </button>
 </div>

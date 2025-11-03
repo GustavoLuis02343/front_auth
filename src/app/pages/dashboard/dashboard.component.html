@@ -1,60 +1,247 @@
 <div class="dashboard-container">
-  <nav class="navbar">
-    <h1>Dashboard</h1>
-    <button (click)="logout()" class="btn-logout">Cerrar sesión</button>
-  </nav>
-  
-  <div class="content">
-    <div class="welcome-section">
-      <h2>¡Bienvenido, {{ usuario?.nombre || 'Usuario' }}!</h2>
-      <p class="user-email">{{ usuario?.correo }}</p>
+  <!-- ============================================
+       HEADER PROFESIONAL
+       ============================================ -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">🎨</span>
+      <span class="logo-text">ALTAR STUDIO</span>
+    </div>
+    
+    <nav class="nav">
+      <a class="nav-link" [class.active]="vistaActual === 'inicio'" (click)="cambiarVista('inicio')">
+        Galería
+      </a>
+      <a class="nav-link">Artistas</a>
+      <a class="nav-link">Blog</a>
+      <a class="nav-link">Sobre nosotros</a>
+      <a class="nav-link" [class.active]="vistaActual === 'seguridad'" (click)="cambiarVista('seguridad')">
+        Mi cuenta
+      </a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn">🔍</button>
+      <button class="icon-btn">👤</button>
+      <button class="icon-btn">❤️</button>
+      <button class="icon-btn">🛒</button>
+      <button (click)="logout()" class="btn-logout">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- ============================================
+       VISTA: GALERÍA DE ARTE (INICIO)
+       ============================================ -->
+  <main class="content" *ngIf="vistaActual === 'inicio'">
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h1 class="hero-title">Arte Regional Huasteco</h1>
+        <p class="hero-subtitle">
+          Descubre y adquiere obras únicas de artistas talentosos de la Huasteca Hidalguense.
+          <br>Cada pieza cuenta una historia, cada creación preserva nuestra cultura.
+        </p>
+        <button class="btn-explore">Explorar Galería</button>
+      </div>
+    </section>
+
+    <!-- Filtros y Búsqueda -->
+    <section class="filters-section">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar por título, artista..." class="search-input">
+        <button class="search-btn">Buscar</button>
+      </div>
+
+      <div class="filters">
+        <button class="filter-btn active">Todos</button>
+        <button class="filter-btn">Fotografías</button>
+        <button class="filter-btn">Pintura</button>
+        <button class="filter-btn">Escultura</button>
+        <button class="filter-btn">Artesanías</button>
+      </div>
+
+      <div class="price-range">
+        <span>Rango de precio:</span>
+        <select class="price-select">
+          <option value="">Todos los precios</option>
+          <option value="0-1000">$0 - $1,000</option>
+          <option value="1000-3000">$1,000 - $3,000</option>
+          <option value="3000+">$3,000+</option>
+        </select>
+        <span class="price-display">$1500.00</span>
+      </div>
+    </section>
+
+    <!-- Obras Destacadas -->
+    <section class="featured-section">
+      <div class="section-header">
+        <h2>Obras Destacadas</h2>
+        <p>Selección especial de creaciones que capturan la esencia de nuestra región</p>
+      </div>
+
+      <div class="art-grid">
+        <!-- Obra 1: Fotografía -->
+        <div class="art-card">
+          <div class="art-badge disponible">Disponible</div>
+          <div class="art-image" style="background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);">
+            <div class="art-icon">📷</div>
+          </div>
+          <div class="art-info">
+            <span class="art-category">Fotografía</span>
+            <h3 class="art-title">Atardecer Urbano</h3>
+            <p class="art-artist">Por María González</p>
+            <div class="art-footer">
+              <span class="art-price">$1,400.00</span>
+              <button class="btn-add-cart">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obra 2: Pintura -->
+        <div class="art-card">
+          <div class="art-badge disponible">Disponible</div>
+          <div class="art-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="art-icon">🎨</div>
+          </div>
+          <div class="art-info">
+            <span class="art-category">Pintura</span>
+            <h3 class="art-title">Naturaleza Abstracta</h3>
+            <p class="art-artist">Por Carlos Ruiz</p>
+            <div class="art-footer">
+              <span class="art-price">$1,400.00</span>
+              <button class="btn-add-cart">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obra 3: Escultura -->
+        <div class="art-card">
+          <div class="art-badge disponible">Disponible</div>
+          <div class="art-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="art-icon">🗿</div>
+          </div>
+          <div class="art-info">
+            <span class="art-category">Escultura</span>
+            <h3 class="art-title">Forma y Espacio</h3>
+            <p class="art-artist">Por María González</p>
+            <div class="art-footer">
+              <span class="art-price">$1,400.00</span>
+              <button class="btn-add-cart">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obra 4: Artesanías -->
+        <div class="art-card">
+          <div class="art-badge disponible">Disponible</div>
+          <div class="art-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <div class="art-icon">🧵</div>
+          </div>
+          <div class="art-info">
+            <span class="art-category">Artesanía</span>
+            <h3 class="art-title">Texturas Mexicanas</h3>
+            <p class="art-artist">Por Roberto López</p>
+            <div class="art-footer">
+              <span class="art-price">$1,400.00</span>
+              <button class="btn-add-cart">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obra 5 -->
+        <div class="art-card">
+          <div class="art-badge disponible">Disponible</div>
+          <div class="art-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+            <div class="art-icon">🌄</div>
+          </div>
+          <div class="art-info">
+            <span class="art-category">Fotografía</span>
+            <h3 class="art-title">Amanecer Huasteco</h3>
+            <p class="art-artist">Por Ana Martínez</p>
+            <div class="art-footer">
+              <span class="art-price">$2,566</span>
+              <button class="btn-add-cart">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Obra 6 -->
+        <div class="art-card">
+          <div class="art-badge disponible">Disponible</div>
+          <div class="art-image" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);">
+            <div class="art-icon">🖼️</div>
+          </div>
+          <div class="art-info">
+            <span class="art-category">Pintura</span>
+            <h3 class="art-title">Tradición Viva</h3>
+            <p class="art-artist">Por Luis Hernández</p>
+            <div class="art-footer">
+              <span class="art-price">$2,566</span>
+              <button class="btn-add-cart">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================
+       VISTA: SEGURIDAD (Tu código original)
+       ============================================ -->
+  <main class="content" *ngIf="vistaActual === 'seguridad'">
+    <section class="hero-banner small">
+      <div class="hero-content">
+        <h1 class="hero-title">🔒 Configuración de Seguridad</h1>
+        <p class="hero-subtitle">Elige cómo deseas proteger tu cuenta</p>
+      </div>
+    </section>
+
+    <div class="section-header">
+      <h2>Autenticación de Dos Factores</h2>
+      <p>Elige un método de autenticación adicional</p>
     </div>
 
-    <div class="security-section">
-      <h3>🔐 Seguridad de la cuenta</h3>
-      <p>Protege tu cuenta con autenticación de dos factores (2FA)</p>
-      
+    <div class="security-grid">
+      <!-- Opción 1: TOTP -->
+      <div class="security-card" (click)="configurar2FA()">
+        <div class="security-icon">📱</div>
+        <h3>Aplicación Autenticadora</h3>
+        <p>Google Authenticator, Authy, etc.</p>
+        <span class="security-badge recommended">Recomendado</span>
+        <button class="btn-configure">Configurar</button>
+      </div>
+
+      <!-- Opción 2: Email -->
       <div class="security-card">
-        <div class="security-info">
-          <h4>Autenticación de dos factores</h4>
-          <p class="status" [class.active]="tiene2FA" [class.inactive]="!tiene2FA">
-            {{ tiene2FA ? '✅ Activado' : '⚠️ No configurado' }}
-          </p>
-        </div>
-        
-        <button (click)="configurar2FA()" class="btn-primary">
-          {{ tiene2FA ? 'Reconfigurar 2FA' : 'Configurar 2FA' }}
-        </button>
+        <div class="security-icon">📧</div>
+        <h3>Correo Electrónico</h3>
+        <p>Código enviado a tu email</p>
+        <span class="security-badge">Disponible</span>
+        <button class="btn-configure">Configurar</button>
       </div>
-    </div>
 
-    <div class="info-section">
-      <h3>📊 Estadísticas</h3>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">👤</div>
-          <div class="stat-info">
-            <h4>Perfil</h4>
-            <p>Completo</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">🔒</div>
-          <div class="stat-info">
-            <h4>Seguridad</h4>
-            <p>{{ tiene2FA ? 'Alta' : 'Media' }}</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">📅</div>
-          <div class="stat-info">
-            <h4>Estado</h4>
-            <p>{{ usuario?.estado || 'Activo' }}</p>
-          </div>
-        </div>
+      <!-- Opción 3: SMS -->
+      <div class="security-card disabled">
+        <div class="security-icon">💬</div>
+        <h3>SMS</h3>
+        <p>Código por mensaje de texto</p>
+        <span class="security-badge">Próximamente</span>
+        <button class="btn-configure" disabled>No disponible</button>
+      </div>
+
+      <!-- Opción 4: Sin 2FA -->
+      <div class="security-card">
+        <div class="security-icon">⏭️</div>
+        <h3>Omitir por ahora</h3>
+        <p>Puedes configurarlo después</p>
+        <span class="security-badge">Opcional</span>
+        <button class="btn-configure secondary" (click)="cambiarVista('inicio')">Volver</button>
       </div>
     </div>
-  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 ALTAR STUDIO. Todos los derechos reservados.</p>
+  </footer>
 </div>

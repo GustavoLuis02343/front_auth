@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TwoFactorService } from '../../services/two-factor.service';
 import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment'; // ✅ IMPORTAR
 
 @Component({
   selector: 'app-two-factor-setup',
@@ -15,136 +13,139 @@ import { environment } from '../../../environments/environment'; // ✅ IMPORTAR
   styleUrls: ['./two-factor-setup.component.css']
 })
 export class TwoFactorSetupComponent implements OnInit {
-  correo: string = '';
-  metodoSeleccionado: string = '';
+  paso: number = 1;
+  metodoSeleccionado: string = 'TOTP';
   qrCodeUrl: string = '';
   secreto: string = '';
   codigoVerificacion: string = '';
   mensaje: string = '';
   isError: boolean = false;
-  paso: number = 1;
-
-  // ✅ USAR ENVIRONMENT EN VEZ DE HARDCODEAR
-  private apiUrl = environment.apiUrl;
+  correo: string = '';
+  cargando: boolean = false;
 
   constructor(
     private twoFactorService: TwoFactorService,
     private authService: AuthService,
-    private router: Router,
-    private http: HttpClient 
-  ) { }
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    const navigation = this.router.getCurrentNavigation();
-    this.correo = navigation?.extras?.state?.['correo'] || '';
+    const userData = this.authService.getUserData();
+    this.correo = userData?.correo || '';
     
     if (!this.correo) {
-      const userData = this.authService.getUserData();
-      this.correo = userData?.correo || '';
+      this.showMessage('No se pudo obtener el correo. Inicia sesión nuevamente.', true);
+      setTimeout(() => this.router.navigate(['/login']), 2000);
+      return;
     }
     
-    if (!this.correo) {
-      alert('No se pudo obtener el correo. Inicia sesión nuevamente.');
-      this.router.navigate(['/dashboard']);
-    }
+    this.cargarQR();
   }
 
-  seleccionarMetodo(metodo: string): void {
-    this.metodoSeleccionado = metodo;
-
-    if (metodo === 'TOTP') {
-      this.configurarTOTP();
-    } else if (metodo === 'EMAIL') {
-      this.configurarEmail();
-    } else if (metodo === 'SMS') {
-      this.showMessage('Este método estará disponible próximamente', false);
-    } else if (metodo === 'NINGUNO') {
-      this.router.navigate(['/dashboard']);
-    }
-  }
-
-  configurarTOTP(): void {
+  cargarQR(): void {
+    this.cargando = true;
     this.twoFactorService.setupTOTP(this.correo).subscribe({
       next: (response) => {
         this.qrCodeUrl = response.qrCode;
         this.secreto = response.secret;
-        this.paso = 2;
+        this.cargando = false;
+        console.log('✅ QR generado correctamente');
       },
       error: (error) => {
-        this.showMessage('Error al configurar TOTP', true);
-        console.error(error);
-      }
-    });
-  }
-
-  configurarEmail(): void {
-    // ✅ CAMBIAR RUTA: Ahora usa /api/2fa/setup-email
-    this.http.post(`${this.apiUrl}/2fa/setup-email`, {
-      correo: this.correo
-    }).subscribe({
-      next: (response: any) => {
-        this.showMessage('✅ ' + response.message, false);
-        this.paso = 3;
-      },
-      error: (error) => {
-        console.error('Error al configurar EMAIL:', error);
-        this.showMessage('❌ Error al enviar código', true);
-      }
-    });
-  }
-
-  verificarEmail(): void {
-    // ✅ CAMBIAR RUTA: Ahora usa /api/2fa/verify-email
-    this.http.post(`${this.apiUrl}/2fa/verify-email`, {
-      correo: this.correo,
-      codigo: this.codigoVerificacion
-    }).subscribe({
-      next: (response: any) => {
-        this.showMessage('✅ ' + response.message, false);
-        setTimeout(() => {
-          this.router.navigate(['/dashboard']);
-        }, 2000);
-      },
-      error: (error) => {
-        console.error('Error al verificar EMAIL:', error);
-        this.showMessage('❌ Código incorrecto', true);
+        this.showMessage('Error al generar el código QR', true);
+        this.cargando = false;
+        console.error('❌ Error al cargar QR:', error);
       }
     });
   }
 
   irAVerificacion(): void {
-    this.paso = 3;
+    if (!this.qrCodeUrl || !this.secreto) {
+      this.showMessage('Primero debes escanear el código QR', true);
+      return;
+    }
+    this.paso = 2;
+    this.mensaje = '';
   }
 
   verificarCodigo(): void {
     if (!this.codigoVerificacion || this.codigoVerificacion.length !== 6) {
-      this.showMessage('El código debe tener 6 dígitos', true);
+      this.showMessage('El código debe tener exactamente 6 dígitos', true);
       return;
     }
 
-    if (this.metodoSeleccionado === 'TOTP') {
-      this.verificarTOTP();
-    } else if (this.metodoSeleccionado === 'EMAIL') {
-      this.verificarEmail(); 
-    }
-  }
-
-  verificarTOTP(): void {
+    this.cargando = true;
     this.twoFactorService.verifyTOTP(this.correo, this.codigoVerificacion).subscribe({
       next: (response) => {
-        this.showMessage('✅ 2FA activado correctamente', false);
+        this.showMessage('✅ Autenticación de dos factores activada correctamente', false);
+        this.cargando = false;
+        
+        localStorage.setItem('2faEnabled', 'true');
+        
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
         }, 2000);
       },
       error: (error) => {
-        this.showMessage('❌ Código incorrecto', true);
+        this.showMessage('❌ Código incorrecto. Verifica el código en tu aplicación', true);
+        this.cargando = false;
+        this.codigoVerificacion = '';
+        console.error('❌ Error al verificar código:', error);
       }
     });
   }
 
-  omitir2FA(): void {
+  validarSoloNumeros(event: any): void {
+    event.target.value = event.target.value.replace(/[^0-9]/g, '');
+    this.codigoVerificacion = event.target.value;
+    
+    if (this.codigoVerificacion.length === 6) {
+      this.mensaje = '';
+    }
+  }
+
+  copiarSecreto(): void {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(this.secreto).then(() => {
+        this.showMessage('✅ Código copiado al portapapeles', false);
+        setTimeout(() => {
+          if (this.mensaje === '✅ Código copiado al portapapeles') {
+            this.mensaje = '';
+          }
+        }, 2000);
+      }).catch(() => {
+        this.fallbackCopy();
+      });
+    } else {
+      this.fallbackCopy();
+    }
+  }
+
+  private fallbackCopy(): void {
+    const textArea = document.createElement('textarea');
+    textArea.value = this.secreto;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      this.showMessage('✅ Código copiado', false);
+      setTimeout(() => this.mensaje = '', 2000);
+    } catch (err) {
+      this.showMessage('❌ Error al copiar', true);
+    }
+    document.body.removeChild(textArea);
+  }
+
+  volver(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  volverAlQR(): void {
+    this.paso = 1;
+    this.codigoVerificacion = '';
+    this.mensaje = '';
   }
 
   private showMessage(msg: string, isError: boolean): void {
