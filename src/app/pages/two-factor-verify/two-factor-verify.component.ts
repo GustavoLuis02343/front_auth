@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TwoFactorService } from '../../services/two-factor.service';
 import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-two-factor-verify',
@@ -21,17 +20,14 @@ export class TwoFactorVerifyComponent implements OnInit {
   isError: boolean = false;
   isLoading: boolean = false;
 
-  private apiUrl = 'http://localhost:4000/api'; 
-
   constructor(
     private twoFactorService: TwoFactorService,
     private authService: AuthService,
     private router: Router,
-    private http: HttpClient,
     private route: ActivatedRoute
   ) { 
- const navigation = this.router.currentNavigation();
-    console.warn(navigation);
+    const navigation = this.router.getCurrentNavigation();
+    console.warn('Navigation state:', navigation);
   
     this.correo = navigation?.extras?.state?.['correo'] || '';
     this.metodo2fa = navigation?.extras?.state?.['metodo_2fa'] || 'TOTP';
@@ -51,13 +47,7 @@ export class TwoFactorVerifyComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Obtener correo del state
-
-     //const navigation = this.router.getCurrentNavigation();
-    //const state = navigation.extras.state as {example: string};
-    //this.example = state.example;
-      
-     
+    // Ya se obtuvo el correo en el constructor
   }
 
   verificar(): void {
@@ -70,39 +60,8 @@ export class TwoFactorVerifyComponent implements OnInit {
 
     console.log('🔍 Verificando con método:', this.metodo2fa);
 
-    if (this.metodo2fa === 'EMAIL') {
-      console.log('📧 Usando validación EMAIL');
-      this.verificarEmail();
-    } else {
-      console.log('🔢 Usando validación TOTP');
-      this.verificarTOTP();
-    }
-  }
-
-  verificarEmail(): void {
-    console.log('📧 Llamando a /api/email/validate-email');
-    console.log('📦 Body:', { correo: this.correo, codigo: this.codigo });
-    
-    this.http.post(`${this.apiUrl}/email/validate-email`, {
-      correo: this.correo,
-      codigo: this.codigo
-    }).subscribe({
-      next: (response: any) => {
-        console.log('✅ Respuesta validate-email:', response);
-        
-        if (response.valid) {
-          this.completarLogin();
-        } else {
-          this.isLoading = false;
-          this.showMessage('❌ Código incorrecto', true);
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('❌ Error al validar EMAIL:', error);
-        this.showMessage('❌ Código incorrecto', true);
-      }
-    });
+    // Solo usar TOTP, ya que Email 2FA no está implementado en el backend
+    this.verificarTOTP();
   }
 
   verificarTOTP(): void {
@@ -114,6 +73,9 @@ export class TwoFactorVerifyComponent implements OnInit {
         
         if (response.valid) {
           this.completarLogin();
+        } else {
+          this.isLoading = false;
+          this.showMessage('❌ Código incorrecto', true);
         }
       },
       error: (error) => {
