@@ -579,3 +579,46 @@
     flex-direction: column;
   }
 }
+.security-badge.active {
+  background: #16a34a;
+  color: white;
+}
+.security-badge.disabled {
+  background: #9ca3af;
+  color: white;
+}
+/* Estado: Configurado */
+.security-card.configured {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.security-badge {
+  display: inline-block;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f0f0f0;
+  color: #666666;
+  margin-bottom: 20px;
+}
+
+.security-badge.active {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.btn-configure.danger {
+  background: #ef4444;
+}
+
+.btn-configure.danger:hover:not([disabled]) {
+  background: #dc2626;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}

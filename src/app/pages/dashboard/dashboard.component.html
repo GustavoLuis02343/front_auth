@@ -212,22 +212,22 @@
       </div>
 
       <!-- Opción 2: Email -->
-      <div class="security-card">
-        <div class="security-icon">📧</div>
-        <h3>Correo Electrónico</h3>
-        <p>Código enviado a tu email</p>
-        <span class="security-badge">Disponible</span>
-        <button class="btn-configure">Configurar</button>
-      </div>
+<!-- Opción 2: Email -->
+<div class="security-card" (click)="configurarEmail2FA()">
+  <div class="security-icon">📧</div>
+  <h3>Correo Electrónico</h3>
+  <p>Código enviado a tu email</p>
+  <span 
+    class="security-badge" 
+    [ngClass]="{
+      'active': usuario?.metodo_gmail_2fa,
+      'disabled': !usuario?.metodo_gmail_2fa
+    }">
+    {{ usuario?.metodo_gmail_2fa ? 'Activo' : 'Disponible' }}
+  </span>
+  <button class="btn-configure">Configurar</button>
+</div>
 
-      <!-- Opción 3: SMS -->
-      <div class="security-card disabled">
-        <div class="security-icon">💬</div>
-        <h3>SMS</h3>
-        <p>Código por mensaje de texto</p>
-        <span class="security-badge">Próximamente</span>
-        <button class="btn-configure" disabled>No disponible</button>
-      </div>
 
       <!-- Opción 4: Sin 2FA -->
       <div class="security-card">

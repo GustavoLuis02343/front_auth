@@ -6,14 +6,43 @@ import { TwoFactorSetupComponent } from './pages/two-factor-setup/two-factor-set
 import { TwoFactorVerifyComponent } from './pages/two-factor-verify/two-factor-verify.component';
 
 export const routes: Routes = [
+  // ============================================
+  // RUTAS PRINCIPALES
+  // ============================================
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'two-factor-setup', component: TwoFactorSetupComponent },
-  { path: 'two-factor-verify', component: TwoFactorVerifyComponent },
-  
-  // 🔑 AGREGAR ESTAS 3 RUTAS:
+
+  // ============================================
+  // AUTENTICACIÓN 2FA (TOTP)
+  // ============================================
+  { 
+    path: 'two-factor-setup', 
+    component: TwoFactorSetupComponent 
+  },
+  { 
+    path: 'two-factor-verify', 
+    component: TwoFactorVerifyComponent 
+  },
+
+  // ============================================
+  // AUTENTICACIÓN 2FA (EMAIL) - ✅ NUEVO
+  // ============================================
+  {
+    path: 'setup-email-2fa',
+    loadComponent: () => import('./pages/setup-email-2fa/setup-email-2fa.component')
+      .then(m => m.SetupEmail2FAComponent)
+  },
+  {
+    path: 'verify-email-code',
+    loadComponent: () => import('./pages/verify-email-code/verify-email-code.component')
+      .then(m => m.VerifyEmailCodeComponent)
+  },
+
+  // ============================================
+  // RECUPERACIÓN DE CONTRASEÑA
+  // ============================================
   {
     path: 'forgot-password',
     loadComponent: () => import('./pages/forgot-password/forgot-password.component')
@@ -29,6 +58,9 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/reset-password/reset-password.component')
       .then(m => m.ResetPasswordComponent)
   },
-  
+
+  // ============================================
+  // RUTA FALLBACK
+  // ============================================
   { path: '**', redirectTo: '/login' }
 ];

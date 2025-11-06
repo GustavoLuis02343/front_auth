@@ -1,0 +1,70 @@
+<div class="setup-container">
+  <div class="setup-card">
+    <!-- PASO 1: Información -->
+    <div *ngIf="paso === 1">
+      <h2>📧 Configurar Email 2FA</h2>
+      <p class="subtitle">
+        Configura la autenticación de dos factores por correo electrónico.
+        Te enviaremos un código cada vez que inicies sesión.
+      </p>
+
+      <div class="info-box">
+        <p><strong>Tu correo:</strong> {{ correo }}</p>
+        <p>Recibirás códigos de verificación en este correo.</p>
+      </div>
+
+      <button 
+        (click)="enviarCodigoConfiguracion()" 
+        class="btn-primary"
+        [disabled]="cargando"
+      >
+        <span *ngIf="!cargando">Enviar código de prueba</span>
+        <span *ngIf="cargando">Enviando...</span>
+      </button>
+
+      <button (click)="volver()" class="btn-secondary">
+        ← Cancelar
+      </button>
+    </div>
+
+    <!-- PASO 2: Verificar código -->
+    <div *ngIf="paso === 2">
+      <h2>📧 Verificar Código</h2>
+      <p class="subtitle">
+        Revisa tu correo <strong>{{ correo }}</strong> e ingresa el código que recibiste.
+      </p>
+
+      <div class="input-section">
+        <label for="codigo">Código de verificación</label>
+        <input 
+          id="codigo"
+          type="text"
+          [(ngModel)]="codigo"
+          placeholder="XXXX-XXXX"
+          maxlength="9"
+          class="input-code"
+          [disabled]="cargando"
+          (keyup.enter)="verificarYActivar()"
+          autofocus
+        />
+      </div>
+
+      <div class="message" [class.error]="isError" [class.success]="!isError" *ngIf="mensaje">
+        {{ mensaje }}
+      </div>
+
+      <button 
+        (click)="verificarYActivar()" 
+        class="btn-primary"
+        [disabled]="cargando || !codigo"
+      >
+        <span *ngIf="!cargando">Verificar y Activar</span>
+        <span *ngIf="cargando">Verificando...</span>
+      </button>
+
+      <button (click)="volver()" class="btn-secondary" [disabled]="cargando">
+        ← Cancelar
+      </button>
+    </div>
+  </div>
+</div>
